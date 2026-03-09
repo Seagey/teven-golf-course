@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 
 export const GlobalStateContext = createContext();
 
@@ -65,34 +66,92 @@ export const GlobalStateProvider = ({ children }) => {
         }
     ];
 
-    // State definition with local storage initialization
-    const [courseOpen, setCourseOpen] = useState(() => {
-        const stored = localStorage.getItem('courseOpen');
-        return stored !== null ? JSON.parse(stored) : defaultCourseOpen;
-    });
+    // Local state
+    const [courseOpen, setCourseOpen] = useState(defaultCourseOpen);
+    const [products, setProducts] = useState(defaultProducts);
+    const [events, setEvents] = useState(defaultEvents);
+    const [isLoaded, setIsLoaded] = useState(false);
 
-    const [products, setProducts] = useState(() => {
-        const stored = localStorage.getItem('products');
-        return stored ? JSON.parse(stored) : defaultProducts;
-    });
-
-    const [events, setEvents] = useState(() => {
-        const stored = localStorage.getItem('events');
-        return stored ? JSON.parse(stored) : defaultEvents;
-    });
-
-    // Save to local storage on change
+    // Initial Fetch from Supabase
     useEffect(() => {
-        localStorage.setItem('courseOpen', JSON.stringify(courseOpen));
-    }, [courseOpen]);
+        const fetchInitialData = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('site_data')
+                    .select('data_key, data_value');
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    data.forEach(row => {
+                        if (row.data_key === 'courseOpen') setCourseOpen(row.data_value);
+                        if (row.data_key === 'products') setProducts(row.data_value);
+                        if (row.data_key === 'events') setEvents(row.data_value);
+                    });
+                }
+            } catch (err) {
+                console.log('Falling back to local defaults (Supabase table may not be set up yet).');
+                // Fallback to local storage if DB fails or isn't set up yet
+                const storedCourse = localStorage.getItem('courseOpen');
+                if (storedCourse !== null) setCourseOpen(JSON.parse(storedCourse));
+
+                const storedProducts = localStorage.getItem('products');
+                if (storedProducts) setProducts(JSON.parse(storedProducts));
+
+                const storedEvents = localStorage.getItem('events');
+                if (storedEvents) setEvents(JSON.parse(storedEvents));
+            } finally {
+                setIsLoaded(true);
+            }
+        };
+
+        fetchInitialData();
+    }, []);
+
+    // Sync to Supabase & LocalStorage on change
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        const syncData = async (key, value) => {
+            // Always keep local storage as a safety net
+            localStorage.setItem(key, JSON.stringify(value));
+
+            try {
+                // Attempt to upsert to Supabase
+                const { error } = await supabase
+                    .from('site_data')
+                    .upsert({ data_key: key, data_value: value }, { onConflict: 'data_key' });
+
+                if (error) throw error;
+            } catch (err) {
+                // Silently fail if table isn't ready
+            }
+        };
+
+        syncData('courseOpen', courseOpen);
+    }, [courseOpen, isLoaded]);
 
     useEffect(() => {
-        localStorage.setItem('products', JSON.stringify(products));
-    }, [products]);
+        if (!isLoaded) return;
+        const syncData = async (key, value) => {
+            localStorage.setItem(key, JSON.stringify(value));
+            try {
+                await supabase.from('site_data').upsert({ data_key: key, data_value: value }, { onConflict: 'data_key' });
+            } catch (err) { }
+        };
+        syncData('products', products);
+    }, [products, isLoaded]);
 
     useEffect(() => {
-        localStorage.setItem('events', JSON.stringify(events));
-    }, [events]);
+        if (!isLoaded) return;
+        const syncData = async (key, value) => {
+            localStorage.setItem(key, JSON.stringify(value));
+            try {
+                await supabase.from('site_data').upsert({ data_key: key, data_value: value }, { onConflict: 'data_key' });
+            } catch (err) { }
+        };
+        syncData('events', events);
+    }, [events, isLoaded]);
 
     return (
         <GlobalStateContext.Provider value={{

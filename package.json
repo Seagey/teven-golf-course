@@ -9,6 +9,7 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@supabase/supabase-js": "^2.98.0",
         "@vimeo/player": "^2.30.3",
         "ai": "^3.4.9",
         "gsap": "^3.12.5",
