@@ -44,7 +44,7 @@ export const TevenCaddy = () => {
             }
 
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
             // Create a system prompt context dynamically
             let chatHistory = "You are the Teven Golf Course Digital Caddy. You are a polite, helpful expert in Golf Australia (GA) Rules and general golf etiquette. Answer concisely. Do not use extremely long paragraphs. ";
