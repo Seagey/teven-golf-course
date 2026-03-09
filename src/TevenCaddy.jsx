@@ -1,21 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
-import { useChat } from 'ai/react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const TevenCaddy = () => {
     const [isOpen, setIsOpen] = useState(false);
     const messagesEndRef = useRef(null);
 
-    // We are using the Vercel AI SDK here. 
-    // In a real app we'd need an API route, but for this frontend demo we mock it out 
-    // or point to a local proxy function.
-    // For the sake of this local frontend demo without a backend, we'll manually handle the state 
-    // to simulate the "Teven Caddy" AI responses based on the user's prompt.
-
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: "Welcome to Teven Golf Course! I'm your digital caddy. Ask me anything about Teven's local rules or Golf Australia rules." }
+        { role: 'assistant', content: "Welcome to Teven Golf Course! I'm your digital caddy. Ask me anything about Teven's local rules or Golf Australia (GA) rules." }
     ]);
     const [input, setInput] = useState('');
+    const [isTyping, setIsTyping] = useState(false);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -23,9 +18,8 @@ export const TevenCaddy = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, isOpen]);
+    }, [messages, isTyping, isOpen]);
 
-    // Added event listener to open caddy from remote buttons
     useEffect(() => {
         const handleOpen = () => setIsOpen(true);
         window.addEventListener('openTevenCaddy', handleOpen);
@@ -39,25 +33,36 @@ export const TevenCaddy = () => {
         const userMessage = { role: 'user', content: input };
         setMessages(prev => [...prev, userMessage]);
         setInput('');
+        setIsTyping(true);
 
-        // Simulated AI Processing for the demo
-        setTimeout(() => {
-            let responseContent = "I'm not quite sure about that specific situation. As per standard Golf Australia rules, when in doubt, play two balls and check with the clubhouse after your round.";
-
-            const lowerInput = userMessage.content.toLowerCase();
-
-            if (lowerInput.includes('road') && (lowerInput.includes('3') || lowerInput.includes('4') || lowerInput.includes('5') || lowerInput.includes('8'))) {
-                responseContent = "If you hit the ball on the road on holes 3, 4, 5, or 8: That is Out of Bounds. You must take a 1 shot penalty and play your 3rd shot off the tee, OR you can take a 2 shot penalty and play your 4th shot from where the ball entered the Out of Bounds area.";
-            }
-            else if (lowerInput.includes('garden') && lowerInput.includes('9')) {
-                responseContent = "If you hit it in a garden bed on hole 9: Any man-made garden beds clearly bordered by garden edging are considered Ground Under Repair. You may take a free drop, one club length, no closer to the hole.";
-            }
-            else if (lowerInput.includes('hello') || lowerInput.includes('hi')) {
-                responseContent = "Hello! How is your round going? Let me know if you need any rulings.";
+        try {
+            const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+            if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
+                setIsTyping(false);
+                setMessages(prev => [...prev, { role: 'assistant', content: "I am currently offline. Please ask the site administrator to add their Gemini API Key to my settings so I can help answer GA Rules!" }]);
+                return;
             }
 
-            setMessages(prev => [...prev, { role: 'assistant', content: responseContent }]);
-        }, 1000);
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+            // Create a system prompt context dynamically
+            let chatHistory = "You are the Teven Golf Course Digital Caddy. You are a polite, helpful expert in Golf Australia (GA) Rules and general golf etiquette. Answer concisely. Do not use extremely long paragraphs. ";
+            messages.forEach(m => {
+                chatHistory += `\n${m.role}: ${m.content}`;
+            });
+            chatHistory += `\nuser: ${input}\nassistant: `;
+
+            const result = await model.generateContent(chatHistory);
+            const responseText = result.response.text();
+
+            setMessages(prev => [...prev, { role: 'assistant', content: responseText }]);
+        } catch (error) {
+            console.error("AI Error:", error);
+            setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I had a little trouble checking the rulebook just now. Can you ask me again?" }]);
+        } finally {
+            setIsTyping(false);
+        }
     };
 
     return (
@@ -97,6 +102,16 @@ export const TevenCaddy = () => {
                             </div>
                         </div>
                     ))}
+
+                    {isTyping && (
+                        <div className="flex justify-start">
+                            <div className="bg-white text-textdark border border-black/5 shadow-sm rounded-tl-sm p-4 rounded-2xl flex items-center justify-center gap-1">
+                                <div className="w-1.5 h-1.5 bg-black/30 rounded-full animate-bounce"></div>
+                                <div className="w-1.5 h-1.5 bg-black/30 rounded-full animate-bounce delay-75"></div>
+                                <div className="w-1.5 h-1.5 bg-black/30 rounded-full animate-bounce delay-150"></div>
+                            </div>
+                        </div>
+                    )}
                     <div ref={messagesEndRef} />
                 </div>
 

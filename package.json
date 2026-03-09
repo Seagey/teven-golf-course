@@ -9,6 +9,7 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@google/generative-ai": "^0.24.1",
         "@supabase/supabase-js": "^2.98.0",
         "@vimeo/player": "^2.30.3",
         "ai": "^3.4.9",

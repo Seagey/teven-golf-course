@@ -1,1 +1,6 @@
 venv/
+.vercel
+
+.env
+.env.local.env.*
+
