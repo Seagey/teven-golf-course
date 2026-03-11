@@ -6,32 +6,32 @@ export const DigitalScorecard = () => {
     const courseData = {
         black: {
             name: "Front 9 (Black Tees)",
-            par: 34,
+            par: 31,
             holes: [
-                { no: 1, par: 4, index: 12, length: 275 },
-                { no: 2, par: 4, index: 6, length: 320 },
-                { no: 3, par: 3, index: 18, length: 145 },
-                { no: 4, par: 5, index: 2, length: 480 },
-                { no: 5, par: 4, index: 10, length: 360 },
-                { no: 6, par: 4, index: 4, length: 390 },
-                { no: 7, par: 3, index: 16, length: 160 },
-                { no: 8, par: 4, index: 8, length: 340 },
-                { no: 9, par: 3, index: 14, length: 170 },
+                { no: 1, par: 3, index: "3/4", length: 180 },
+                { no: 2, par: 4, index: "4/3", length: 268 },
+                { no: 3, par: 3, index: "2", length: 133 },
+                { no: 4, par: 4, index: "8/7", length: 236 },
+                { no: 5, par: 3, index: "5/8", length: 139 },
+                { no: 6, par: 4, index: "7/5", length: 250 },
+                { no: 7, par: 4, index: "6", length: 259 },
+                { no: 8, par: 3, index: "9", length: 89 },
+                { no: 9, par: 3, index: "1", length: 151 },
             ]
         },
         white: {
             name: "Back 9 (White Tees)",
-            par: 34,
+            par: 27,
             holes: [
-                { no: 10, par: 4, index: 11, length: 260 },
-                { no: 11, par: 4, index: 5, length: 310 },
-                { no: 12, par: 3, index: 17, length: 135 },
-                { no: 13, par: 5, index: 1, length: 495 },
-                { no: 14, par: 4, index: 9, length: 350 },
-                { no: 15, par: 4, index: 3, length: 380 },
-                { no: 16, par: 3, index: 15, length: 150 },
-                { no: 17, par: 4, index: 7, length: 330 },
-                { no: 18, par: 3, index: 13, length: 165 },
+                { no: 10, par: 3, index: "3/4", length: 144 },
+                { no: 11, par: 3, index: "2", length: 150 },
+                { no: 12, par: 3, index: "4/3", length: 115 },
+                { no: 13, par: 3, index: "6", length: 165 },
+                { no: 14, par: 3, index: "8", length: 113 },
+                { no: 15, par: 3, index: "5", length: 151 },
+                { no: 16, par: 3, index: "7", length: 176 },
+                { no: 17, par: 3, index: "9", length: 89 },
+                { no: 18, par: 3, index: "1", length: 114 },
             ]
         }
     };
@@ -43,15 +43,27 @@ export const DigitalScorecard = () => {
         <section id="scorecard" className="py-32 px-6 md:px-12 lg:px-24 bg-white border-t border-black/5">
             <div className="max-w-6xl mx-auto">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-                    <div>
+                    <div className="flex flex-col">
                         <span className="text-accent tracking-widest text-xs uppercase font-medium mb-3 block">Interactive Guide</span>
-                        <h2 className="font-heading text-4xl md:text-5xl text-primary">Digital Scorecard</h2>
-                        <p className="font-body font-light text-textdark/60 mt-4 max-w-xl">
+                        <h2 className="font-heading text-4xl md:text-5xl text-primary mb-4">Digital Scorecard</h2>
+                        <div className="flex items-center gap-4 mb-4 flex-wrap">
+                            <div className="bg-[#111] text-white px-3 py-1.5 rounded-sm flex gap-3 text-xs tracking-wider font-body">
+                                <span className="font-bold">BLACK SLOPE <span className="font-normal opacity-80">129</span></span>
+                                <span className="opacity-50">|</span>
+                                <span className="font-bold">SCRATCH <span className="font-normal opacity-80">70</span></span>
+                            </div>
+                            <div className="bg-[#E5E5E5] text-primary px-3 py-1.5 rounded-sm flex gap-3 text-xs tracking-wider font-body">
+                                <span className="font-bold">WHITE SLOPE <span className="font-normal opacity-80">110</span></span>
+                                <span className="opacity-50">|</span>
+                                <span className="font-bold">SCRATCH <span className="font-normal opacity-80">65</span></span>
+                            </div>
+                        </div>
+                        <p className="font-body font-light text-textdark/60 max-w-xl">
                             Our 9-hole layout is masterfully designed to be played as a full 18-hole experience utilizing two dedicated tee boxes on each hole.
                         </p>
                     </div>
 
-                    <div className="flex bg-background rounded-full p-1 border border-black/5 shadow-inner">
+                    <div className="flex bg-background rounded-full p-1 border border-black/5 shadow-inner self-start md:self-end">
                         <button
                             onClick={() => setSelectedTee('black')}
                             className={`px-6 py-2 rounded-full font-body text-xs tracking-widest uppercase font-bold transition-all duration-300 ${selectedTee === 'black' ? 'bg-primary text-accent shadow-md' : 'text-textdark/50 hover:text-primary'}`}
@@ -89,7 +101,7 @@ export const DigitalScorecard = () => {
                             </tr>
                             {/* Index Row */}
                             <tr className="border-b border-black/5 hover:bg-background/50 transition-colors">
-                                <td className="px-6 py-4 pl-8 font-body font-medium text-sm text-textdark/70 uppercase tracking-wider">Index</td>
+                                <td className="px-6 py-4 pl-8 font-body font-medium text-sm text-textdark/70 uppercase tracking-wider">Index m/w</td>
                                 {currentData.holes.map(h => (
                                     <td key={h.no} className="px-4 py-4 text-center font-body text-sm text-textdark/50">{h.index}</td>
                                 ))}
