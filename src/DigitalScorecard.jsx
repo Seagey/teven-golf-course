@@ -59,7 +59,7 @@ export const DigitalScorecard = () => {
                             </div>
                         </div>
                         <p className="font-body font-light text-textdark/60 max-w-xl">
-                            Our 9-hole layout is masterfully designed to be played as a full 18-hole experience utilizing two dedicated tee boxes on each hole.
+                            Our 9-hole layout is masterfully designed to be played as a full 18-hole experience utilising two dedicated tee boxes on each hole.
                         </p>
                     </div>
 
