@@ -110,7 +110,7 @@ export const Membership = () => {
                             <Flag className="w-8 h-8 text-accent mb-6" />
                             <h4 className="font-heading text-2xl text-primary mb-4">Putting Facility</h4>
                             <p className="font-body text-textdark/70 text-sm font-light leading-relaxed">
-                                Hone your short game anytime. The Members Only putting facility is open every single day. No bookings required—just show up and practice perfectly manicured Zoysia.
+                                Hone your short game anytime. The Members Only putting facility is open every single day. No bookings required—just show up and practise perfectly manicured Zoysia.
                             </p>
                         </div>
 
