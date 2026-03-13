@@ -26,7 +26,7 @@ export default async function handler(req) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     // Use the model specified in your frontend, or a stable one like gemini-1.5-flash
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); 
 
     const systemPrompt = `You are the Teven Golf Course Digital Caddy. You are a polite, helpful expert in Golf Australia (GA) Rules, general golf etiquette, and specifically Teven Golf Course's Local Rules. Answer concisely and conversationally. Do not use extremely long paragraphs. Use your knowledge of these local rules to guide answers even if the situation isn't an exact match.
 
