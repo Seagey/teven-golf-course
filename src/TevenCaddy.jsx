@@ -55,7 +55,7 @@ export const TevenCaddy = () => {
                     throw new Error("Received HTML error page. If running locally, ensure you use `npx vercel dev` instead of `npm run dev`. If on Vercel Preview, ensure Vercel Authentication is off or bypassable for APIs.");
                 }
                 const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
-                throw new Error(errorData.error || `Failed to get response: ${response.status}`);
+                throw new Error(errorData.details || errorData.error || `Failed to get response: ${response.status}`);
             }
 
             const contentType = response.headers.get('content-type');

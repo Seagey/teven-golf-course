@@ -58,7 +58,7 @@ Always refer to standard Golf Australia rules for scenarios outside these local 
     });
   } catch (error) {
     console.error("AI Proxy Error:", error);
-    return new Response(JSON.stringify({ error: 'The caddy is having trouble connecting to the rules engine.' }), {
+    return new Response(JSON.stringify({ error: 'The caddy is having trouble connecting to the rules engine.', details: error.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
