@@ -49,15 +49,30 @@ export const TevenCaddy = () => {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to get response');
+                // Check if we accidentally got an HTML page back (e.g. from Vite dev server or Vercel Auth proxy)
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('text/html')) {
+                    throw new Error("Received HTML error page. If running locally, ensure you use `npx vercel dev` instead of `npm run dev`. If on Vercel Preview, ensure Vercel Authentication is off or bypassable for APIs.");
+                }
+                const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+                throw new Error(errorData.error || `Failed to get response: ${response.status}`);
+            }
+
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('text/html')) {
+                throw new Error("Received HTML instead of JSON. If running locally, you must run `npx vercel dev` instead of `npm run dev` to enable the backend API.");
             }
 
             const data = await response.json();
             setMessages(prev => [...prev, { role: 'assistant', content: data.text }]);
         } catch (error) {
             console.error("AI Error:", error);
-            setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I had a little trouble checking the rulebook just now. Can you ask me again?" }]);
+            // Display the specific error message if it's our dev error, otherwise default to the friendly message
+            const errorMessage = error.message.includes("npx vercel dev") 
+                ? `Dev Error: ${error.message}`
+                : "Sorry, I had a little trouble checking the rulebook just now. Can you ask me again?";
+            
+            setMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
         } finally {
             setIsTyping(false);
         }

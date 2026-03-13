@@ -68,6 +68,7 @@ export const GlobalStateProvider = ({ children }) => {
 
     // Local state
     const [courseOpen, setCourseOpen] = useState(defaultCourseOpen);
+    const [buggiesAllowed, setBuggiesAllowed] = useState(true);
     const [products, setProducts] = useState(defaultProducts);
     const [events, setEvents] = useState(defaultEvents);
     const [isLoaded, setIsLoaded] = useState(false);
@@ -85,6 +86,7 @@ export const GlobalStateProvider = ({ children }) => {
                 if (data && data.length > 0) {
                     data.forEach(row => {
                         if (row.data_key === 'courseOpen') setCourseOpen(row.data_value);
+                        if (row.data_key === 'buggiesAllowed') setBuggiesAllowed(row.data_value);
                         if (row.data_key === 'products') setProducts(row.data_value);
                         if (row.data_key === 'events') setEvents(row.data_value);
                     });
@@ -94,6 +96,9 @@ export const GlobalStateProvider = ({ children }) => {
                 // Fallback to local storage if DB fails or isn't set up yet
                 const storedCourse = localStorage.getItem('courseOpen');
                 if (storedCourse !== null) setCourseOpen(JSON.parse(storedCourse));
+
+                const storedBuggies = localStorage.getItem('buggiesAllowed');
+                if (storedBuggies !== null) setBuggiesAllowed(JSON.parse(storedBuggies));
 
                 const storedProducts = localStorage.getItem('products');
                 if (storedProducts) setProducts(JSON.parse(storedProducts));
@@ -139,6 +144,17 @@ export const GlobalStateProvider = ({ children }) => {
                 await supabase.from('site_data').upsert({ data_key: key, data_value: value }, { onConflict: 'data_key' });
             } catch (err) { }
         };
+        syncData('buggiesAllowed', buggiesAllowed);
+    }, [buggiesAllowed, isLoaded]);
+
+    useEffect(() => {
+        if (!isLoaded) return;
+        const syncData = async (key, value) => {
+            localStorage.setItem(key, JSON.stringify(value));
+            try {
+                await supabase.from('site_data').upsert({ data_key: key, data_value: value }, { onConflict: 'data_key' });
+            } catch (err) { }
+        };
         syncData('products', products);
     }, [products, isLoaded]);
 
@@ -156,6 +172,7 @@ export const GlobalStateProvider = ({ children }) => {
     return (
         <GlobalStateContext.Provider value={{
             courseOpen, setCourseOpen,
+            buggiesAllowed, setBuggiesAllowed,
             products, setProducts,
             events, setEvents
         }}>

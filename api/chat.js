@@ -1,17 +1,27 @@
+export const config = {
+  runtime: 'edge',
+};
+
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-export default async function handler(req, res) {
+export default async function handler(req) {
   // Only allow POST requests
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   try {
-    const { messages, input } = req.body;
+    const { messages, input } = await req.json();
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ error: 'Gemini API Key not configured on server' });
+      return new Response(JSON.stringify({ error: 'Gemini API Key not configured on server' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -42,9 +52,15 @@ Always refer to standard Golf Australia rules for scenarios outside these local 
     const result = await model.generateContent(chatHistory);
     const responseText = result.response.text();
 
-    return res.status(200).json({ text: responseText });
+    return new Response(JSON.stringify({ text: responseText }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error("AI Proxy Error:", error);
-    return res.status(500).json({ error: 'The caddy is having trouble connecting to the rules engine.' });
+    return new Response(JSON.stringify({ error: 'The caddy is having trouble connecting to the rules engine.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

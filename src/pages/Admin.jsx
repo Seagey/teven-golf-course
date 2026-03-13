@@ -74,7 +74,12 @@ export const Admin = () => {
     const [passwordInput, setPasswordInput] = useState('');
     const [activeTab, setActiveTab] = useState('status'); // status, shop, events
 
-    const { courseOpen, setCourseOpen, products, setProducts, events, setEvents } = useContext(GlobalStateContext);
+    const { 
+        courseOpen, setCourseOpen, 
+        buggiesAllowed, setBuggiesAllowed, 
+        products, setProducts, 
+        events, setEvents 
+    } = useContext(GlobalStateContext);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -154,24 +159,48 @@ export const Admin = () => {
                     {activeTab === 'status' && (
                         <div className="bg-white p-8 rounded-sm shadow-sm border border-black/5">
                             <h3 className="font-heading text-3xl text-primary mb-6">Course Operations</h3>
-                            <div className="flex items-center justify-between p-6 bg-gray-50 border border-black/10 rounded-sm">
-                                <div>
-                                    <p className="font-body font-bold text-lg text-primary mb-1">Live Course Status</p>
-                                    <p className="font-body text-sm text-textdark/60">Toggle to instantly update the homepage hero banner.</p>
+                            
+                            <div className="grid grid-cols-1 gap-6">
+                                {/* Course Status Toggle */}
+                                <div className="flex items-center justify-between p-6 bg-gray-50 border border-black/10 rounded-sm">
+                                    <div>
+                                        <p className="font-body font-bold text-lg text-primary mb-1">Live Course Status</p>
+                                        <p className="font-body text-sm text-textdark/60">Toggle to update the homepage hero and weather widget.</p>
+                                        <p className="mt-2 font-body text-sm text-textdark/50">
+                                            Currently: <strong className={courseOpen ? 'text-green-600' : 'text-red-600'}>{courseOpen ? 'OPEN' : 'CLOSED'}</strong>
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => setCourseOpen(!courseOpen)}
+                                        className="flex items-center"
+                                    >
+                                        {courseOpen ? 
+                                            <ToggleRight className="w-16 h-16 text-green-500" /> : 
+                                            <ToggleLeft className="w-16 h-16 text-red-500" />
+                                        }
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => setCourseOpen(!courseOpen)}
-                                    className="flex items-center"
-                                >
-                                    {courseOpen ?
-                                        <ToggleRight className="w-16 h-16 text-green-500" /> :
-                                        <ToggleLeft className="w-16 h-16 text-red-500" />
-                                    }
-                                </button>
+
+                                {/* Buggies Status Toggle */}
+                                <div className="flex items-center justify-between p-6 bg-gray-50 border border-black/10 rounded-sm">
+                                    <div>
+                                        <p className="font-body font-bold text-lg text-primary mb-1">Buggies & Carts</p>
+                                        <p className="font-body text-sm text-textdark/60">Toggle if golf buggies/carts are allowed on the course today.</p>
+                                        <p className="mt-2 font-body text-sm text-textdark/50">
+                                            Currently: <strong className={buggiesAllowed ? 'text-green-600' : 'text-red-600'}>{buggiesAllowed ? 'ALLOWED' : 'RESTRICTED'}</strong>
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => setBuggiesAllowed(!buggiesAllowed)}
+                                        className="flex items-center"
+                                    >
+                                        {buggiesAllowed ? 
+                                            <ToggleRight className="w-16 h-16 text-green-500" /> : 
+                                            <ToggleLeft className="w-16 h-16 text-red-500" />
+                                        }
+                                    </button>
+                                </div>
                             </div>
-                            <p className="mt-4 font-body text-sm text-textdark/50">
-                                Current Status: <strong className={courseOpen ? 'text-green-600' : 'text-red-600'}>{courseOpen ? 'OPEN' : 'CLOSED'}</strong>
-                            </p>
                         </div>
                     )}
 
